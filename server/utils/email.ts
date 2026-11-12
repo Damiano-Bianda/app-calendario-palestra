@@ -1,4 +1,5 @@
 import type { H3Event } from 'h3'
+import { formatCenterDate, formatCenterTimeRange } from '../../shared/utils/timezone.ts'
 
 export interface TransactionalEmailMessage {
   to: string | string[]
@@ -447,3 +448,241 @@ export async function sendCustomUsersEmail(
     text,
   })
 }
+
+/**
+ * Sends a notification email in Italian when a lesson is cancelled by the manager/assistant manager
+ * and `notifyEnrolled` is requested (SPECIFICATION.md lines 103-105, 470).
+ */
+export async function sendScheduleCancelledEmail(
+  event: H3Event | undefined,
+  params: {
+    to: string | string[]
+    centerName: string
+    timezone: string
+    className: string
+    startDate: string
+    durationMinutes: number
+    customMessage?: string | null
+  },
+): Promise<{ delivered: boolean; provider: 'resend' | 'brevo' | 'console' }> {
+  const dateStr = formatCenterDate(params.startDate, params.timezone)
+  const timeRangeStr = formatCenterTimeRange(
+    params.startDate,
+    params.durationMinutes,
+    params.timezone,
+  )
+  const subject = `Annullamento lezione "${params.className}" del ${dateStr} - ${params.centerName}`
+
+  const textLines = [
+    'Gentile iscritto/a,',
+    '',
+    `ti informiamo che la lezione del corso "${params.className}" presso la sede ${params.centerName}, prevista per il giorno ${dateStr} (${timeRangeStr}), è stata annullata dalla direzione.`,
+    "L'eventuale ingresso utilizzato è stato automaticamente riaccreditato sul tuo abbonamento.",
+  ]
+
+  if (params.customMessage && params.customMessage.trim().length > 0) {
+    textLines.push('', 'Messaggio dalla direzione:', params.customMessage.trim())
+  }
+
+  const text = textLines.join('\n')
+
+  const html = `
+    <div style="font-family: sans-serif; line-height: 1.5; color: #111827;">
+      <h2>Annullamento lezione</h2>
+      <p>Gentile iscritto/a,</p>
+      <p>ti informiamo che la seguente lezione presso la sede <strong>${escapeHtml(params.centerName)}</strong> è stata annullata dalla direzione:</p>
+      <ul>
+        <li><strong>Corso:</strong> ${escapeHtml(params.className)}</li>
+        <li><strong>Data:</strong> ${escapeHtml(dateStr)}</li>
+        <li><strong>Orario:</strong> ${escapeHtml(timeRangeStr)}</li>
+      </ul>
+      <p>L'eventuale ingresso utilizzato è stato automaticamente riaccreditato sul tuo abbonamento.</p>
+      ${
+        params.customMessage && params.customMessage.trim().length > 0
+          ? `<div style="margin-top: 16px; padding: 12px; background-color: #f3f4f6; border-radius: 6px;">
+              <strong>Messaggio dalla direzione:</strong><br/>
+              ${escapeHtml(params.customMessage.trim())}
+            </div>`
+          : ''
+      }
+    </div>
+  `.trim()
+
+  return sendTransactionalEmail(event, {
+    to: params.to,
+    subject,
+    html,
+    text,
+  })
+}
+
+/**
+ * Sends a notification email in Italian when a manager/assistant manager enrolls a customer
+ * in a lesson or places them in the waiting queue (SPECIFICATION.md lines 201, 471).
+ */
+export async function sendManagerEnrollmentEmail(
+  event: H3Event | undefined,
+  params: {
+    to: string
+    name: string
+    surname: string
+    centerName: string
+    timezone: string
+    className: string
+    startDate: string
+    durationMinutes: number
+    isQueued: boolean
+  },
+): Promise<{ delivered: boolean; provider: 'resend' | 'brevo' | 'console' }> {
+  const dateStr = formatCenterDate(params.startDate, params.timezone)
+  const timeRangeStr = formatCenterTimeRange(
+    params.startDate,
+    params.durationMinutes,
+    params.timezone,
+  )
+  const statusLabel = params.isQueued ? 'inserito/a in lista d’attesa (coda)' : 'iscritto/a'
+  const subject = params.isQueued
+    ? `Inserimento in coda per "${params.className}" (${dateStr}) - ${params.centerName}`
+    : `Conferma iscrizione a "${params.className}" (${dateStr}) - ${params.centerName}`
+
+  const text = [
+    `Ciao ${params.name} ${params.surname},`,
+    '',
+    `La direzione della sede ${params.centerName} ti ha ${statusLabel} per la seguente lezione:`,
+    `Corso: ${params.className}`,
+    `Data: ${dateStr}`,
+    `Orario: ${timeRangeStr}`,
+    `Stato: ${params.isQueued ? 'In coda' : 'Iscritto'}`,
+  ].join('\n')
+
+  const html = `
+    <div style="font-family: sans-serif; line-height: 1.5; color: #111827;">
+      <h2>${params.isQueued ? 'Inserimento in coda' : 'Conferma iscrizione'}</h2>
+      <p>Ciao <strong>${escapeHtml(params.name)} ${escapeHtml(params.surname)}</strong>,</p>
+      <p>La direzione della sede <strong>${escapeHtml(params.centerName)}</strong> ti ha ${escapeHtml(statusLabel)} per la seguente lezione:</p>
+      <ul>
+        <li><strong>Corso:</strong> ${escapeHtml(params.className)}</li>
+        <li><strong>Data:</strong> ${escapeHtml(dateStr)}</li>
+        <li><strong>Orario:</strong> ${escapeHtml(timeRangeStr)}</li>
+        <li><strong>Stato:</strong> ${params.isQueued ? 'In coda' : 'Iscritto'}</li>
+      </ul>
+    </div>
+  `.trim()
+
+  return sendTransactionalEmail(event, {
+    to: params.to,
+    subject,
+    html,
+    text,
+  })
+}
+
+/**
+ * Sends a confirmation email in Italian when a customer is automatically promoted from the waiting queue
+ * (`is_queued = true` -> `is_queued = false`) after another participant unenrolls (SPECIFICATION.md lines 209-210, 472).
+ */
+export async function sendQueuePromotionEmail(
+  event: H3Event | undefined,
+  params: {
+    to: string
+    name: string
+    surname: string
+    centerName: string
+    timezone: string
+    className: string
+    startDate: string
+    durationMinutes: number
+  },
+): Promise<{ delivered: boolean; provider: 'resend' | 'brevo' | 'console' }> {
+  const dateStr = formatCenterDate(params.startDate, params.timezone)
+  const timeRangeStr = formatCenterTimeRange(
+    params.startDate,
+    params.durationMinutes,
+    params.timezone,
+  )
+  const subject = `Posto confermato dalla coda per "${params.className}" (${dateStr}) - ${params.centerName}`
+
+  const text = [
+    `Ciao ${params.name} ${params.surname},`,
+    '',
+    `Si è liberato un posto per la lezione di "${params.className}" presso la sede ${params.centerName}!`,
+    'La tua prenotazione in coda è stata promossa e ora risulti ufficialmente iscritto/a alla lezione:',
+    `Corso: ${params.className}`,
+    `Data: ${dateStr}`,
+    `Orario: ${timeRangeStr}`,
+  ].join('\n')
+
+  const html = `
+    <div style="font-family: sans-serif; line-height: 1.5; color: #111827;">
+      <h2>Posto confermato dalla coda!</h2>
+      <p>Ciao <strong>${escapeHtml(params.name)} ${escapeHtml(params.surname)}</strong>,</p>
+      <p>Si è liberato un posto per la lezione di <strong>${escapeHtml(params.className)}</strong> presso la sede <strong>${escapeHtml(params.centerName)}</strong>.</p>
+      <p>La tua prenotazione in coda è stata promossa e ora risulti ufficialmente <strong>iscritto/a</strong>:</p>
+      <ul>
+        <li><strong>Corso:</strong> ${escapeHtml(params.className)}</li>
+        <li><strong>Data:</strong> ${escapeHtml(dateStr)}</li>
+        <li><strong>Orario:</strong> ${escapeHtml(timeRangeStr)}</li>
+      </ul>
+    </div>
+  `.trim()
+
+  return sendTransactionalEmail(event, {
+    to: params.to,
+    subject,
+    html,
+    text,
+  })
+}
+
+/**
+ * Sends a custom communication email in Italian from a manager, assistant manager, or assigned instructor
+ * to all enrolled participants of a specific lesson (SPECIFICATION.md lines 25, 395, 473).
+ */
+export async function sendScheduleParticipantsEmail(
+  event: H3Event | undefined,
+  params: {
+    to: string | string[]
+    centerName: string
+    timezone: string
+    senderName: string
+    className: string
+    startDate: string
+    durationMinutes: number
+    message: string
+  },
+): Promise<{ delivered: boolean; provider: 'resend' | 'brevo' | 'console' }> {
+  const dateStr = formatCenterDate(params.startDate, params.timezone)
+  const timeRangeStr = formatCenterTimeRange(
+    params.startDate,
+    params.durationMinutes,
+    params.timezone,
+  )
+  const subject = `Comunicazione lezione "${params.className}" (${dateStr}) - ${params.centerName}`
+
+  const text = [
+    `Comunicazione per gli iscritti alla lezione "${params.className}" del ${dateStr} (${timeRangeStr}) presso ${params.centerName}`,
+    `Inviato da: ${params.senderName}`,
+    '',
+    params.message.trim(),
+  ].join('\n')
+
+  const html = `
+    <div style="font-family: sans-serif; line-height: 1.5; color: #111827;">
+      <h2>Comunicazione sulla lezione "${escapeHtml(params.className)}"</h2>
+      <p style="color: #4b5563; font-size: 14px;">
+        <strong>Sede:</strong> ${escapeHtml(params.centerName)}<br/>
+        <strong>Data e orario:</strong> ${escapeHtml(dateStr)} (${escapeHtml(timeRangeStr)})<br/>
+        <strong>Inviato da:</strong> ${escapeHtml(params.senderName)}
+      </p>
+      <div style="margin-top: 16px; padding: 14px; background-color: #f9fafb; border-left: 4px solid #111827; white-space: pre-wrap;">${escapeHtml(params.message.trim())}</div>
+    </div>
+  `.trim()
+
+  return sendTransactionalEmail(event, {
+    to: params.to,
+    subject,
+    html,
+    text,
+  })
+}
+

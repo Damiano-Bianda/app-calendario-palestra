@@ -1,7 +1,8 @@
-import { and, inArray, isNull } from 'drizzle-orm'
+import { and, asc, eq, inArray, isNull } from 'drizzle-orm'
 import {
   NON_TERMINATED_SCHEDULE_STATUSES,
   computeScheduleMetrics,
+  getCustomerScheduleStatusLabel,
   type ComputedScheduleMetrics,
   type ScheduleStatus,
 } from '../../shared/utils/schedule-status.ts'
@@ -12,7 +13,16 @@ import {
   isUserSubscriptionActive,
   type UserScheduleForEntranceCalculation,
 } from '../../shared/utils/subscription-entrances.ts'
-import { schedules, userSchedules } from '../db/schema.ts'
+import {
+  classes,
+  schedules,
+  subscriptions,
+  subscriptionsClasses,
+  userSchedules,
+  users,
+  usersCenters,
+  type ClassColor,
+} from '../db/schema.ts'
 import type { AppDatabase } from './db.ts'
 
 export type ScheduleRow = typeof schedules.$inferSelect
@@ -65,6 +75,210 @@ export async function attachComputedScheduleMetrics(
     }
   })
 }
+
+export interface ScheduleClassSummary {
+  id: string
+  name: string
+  description: string | null
+  color: ClassColor
+}
+
+export interface ScheduleInstructorSummary {
+  id: string
+  name: string
+  surname: string
+  email: string
+  phoneNumber: string
+}
+
+export interface ScheduleRequiredSubscriptionSummary {
+  id: string
+  name: string
+  description: string | null
+  entrances: number | null
+  durationDays: number | null
+}
+
+export interface ScheduleUserEnrollmentState {
+  isEnrolled: boolean
+  isQueued: boolean
+  queuePosition: number | null
+  userScheduleId: string | null
+  userSubscriptionId: string | null
+}
+
+export interface EnrichedScheduleResponse extends ScheduleRow, ComputedScheduleMetrics {
+  endDate: string
+  queuedCount: number
+  class: ScheduleClassSummary | null
+  instructor: ScheduleInstructorSummary | null
+  requiredSubscriptions: ScheduleRequiredSubscriptionSummary[]
+  userEnrollment: ScheduleUserEnrollmentState
+  customerStatusLabel: string
+}
+
+/**
+ * Enriches a list of `schedules` rows with computed metrics (`status`, `enrolledCount`, `remainingSpots`, `queuedCount`, `endDate`),
+ * course metadata (`class`), instructor details (`instructor`), required subscriptions (`requiredSubscriptions`),
+ * and the requesting user's enrollment/queue state (`userEnrollment`, `customerStatusLabel`).
+ */
+export async function enrichSchedulesForResponse(
+  db: AppDatabase,
+  scheduleRows: ReadonlyArray<ScheduleRow>,
+  options: {
+    centerId: string
+    currentUserId?: string
+    now?: string | Date
+  },
+): Promise<EnrichedScheduleResponse[]> {
+  if (scheduleRows.length === 0) {
+    return []
+  }
+
+  const now = options.now ?? new Date()
+  const withMetrics = await attachComputedScheduleMetrics(db, scheduleRows, now)
+
+  const classIds = Array.from(new Set(scheduleRows.map((s) => s.classId)))
+  const instructorIds = Array.from(
+    new Set(scheduleRows.map((s) => s.instructorId).filter((id): id is string => Boolean(id))),
+  )
+
+  // 1. Fetch classes (include even if soft-deleted later so historical/cancelled schedules retain class metadata)
+  const classRows =
+    classIds.length > 0
+      ? await db
+          .select({
+            id: classes.id,
+            name: classes.name,
+            description: classes.description,
+            color: classes.color,
+          })
+          .from(classes)
+          .where(and(inArray(classes.id, classIds), eq(classes.centerId, options.centerId)))
+      : []
+
+  const classById = new Map<string, ScheduleClassSummary>()
+  for (const c of classRows) {
+    classById.set(c.id, c)
+  }
+
+  // 2. Fetch instructors in the center
+  const instructorRows =
+    instructorIds.length > 0
+      ? await db
+          .select({
+            id: users.id,
+            name: usersCenters.name,
+            surname: usersCenters.surname,
+            email: users.email,
+            phoneNumber: usersCenters.phoneNumber,
+          })
+          .from(usersCenters)
+          .innerJoin(users, eq(usersCenters.userId, users.id))
+          .where(
+            and(
+              eq(usersCenters.centerId, options.centerId),
+              inArray(usersCenters.userId, instructorIds),
+              isNull(usersCenters.deletedAt),
+              isNull(users.deletedAt),
+            ),
+          )
+      : []
+
+  const instructorById = new Map<string, ScheduleInstructorSummary>()
+  for (const instr of instructorRows) {
+    instructorById.set(instr.id, instr)
+  }
+
+  // 3. Fetch active required subscriptions for each classId
+  const reqSubRows =
+    classIds.length > 0
+      ? await db
+          .select({
+            classId: subscriptionsClasses.classId,
+            id: subscriptions.id,
+            name: subscriptions.name,
+            description: subscriptions.description,
+            entrances: subscriptions.entrances,
+            durationDays: subscriptions.durationDays,
+          })
+          .from(subscriptionsClasses)
+          .innerJoin(subscriptions, eq(subscriptionsClasses.subscriptionId, subscriptions.id))
+          .where(
+            and(
+              inArray(subscriptionsClasses.classId, classIds),
+              eq(subscriptions.centerId, options.centerId),
+              isNull(subscriptionsClasses.deletedAt),
+              isNull(subscriptions.deletedAt),
+            ),
+          )
+          .orderBy(asc(subscriptions.name))
+      : []
+
+  const requiredSubsByClassId = new Map<string, ScheduleRequiredSubscriptionSummary[]>()
+  for (const row of reqSubRows) {
+    const summary: ScheduleRequiredSubscriptionSummary = {
+      id: row.id,
+      name: row.name,
+      description: row.description,
+      entrances: row.entrances,
+      durationDays: row.durationDays,
+    }
+    const existing = requiredSubsByClassId.get(row.classId)
+    if (existing) {
+      if (!existing.some((s) => s.id === summary.id)) {
+        existing.push(summary)
+      }
+    } else {
+      requiredSubsByClassId.set(row.classId, [summary])
+    }
+  }
+
+  return withMetrics.map((sched) => {
+    const { activeUserSchedules, ...scheduleBase } = sched
+
+    const sortedQueue = activeUserSchedules
+      .filter((r) => r.isQueued)
+      .sort((a, b) => {
+        const cmp = a.createdAt.localeCompare(b.createdAt)
+        return cmp !== 0 ? cmp : a.id.localeCompare(b.id)
+      })
+
+    const myEnrollmentRow = options.currentUserId
+      ? activeUserSchedules.find((r) => r.userId === options.currentUserId)
+      : undefined
+
+    const isEnrolled = Boolean(myEnrollmentRow && !myEnrollmentRow.isQueued)
+    const isQueued = Boolean(myEnrollmentRow && myEnrollmentRow.isQueued)
+    const queuePosition =
+      isQueued && myEnrollmentRow
+        ? sortedQueue.findIndex((r) => r.id === myEnrollmentRow.id) + 1
+        : null
+
+    const userEnrollment: ScheduleUserEnrollmentState = {
+      isEnrolled,
+      isQueued,
+      queuePosition,
+      userScheduleId: myEnrollmentRow?.id ?? null,
+      userSubscriptionId: myEnrollmentRow?.userSubscriptionId ?? null,
+    }
+
+    const endDate = new Date(
+      Date.parse(sched.startDate) + sched.durationMinutes * 60_000,
+    ).toISOString()
+
+    return {
+      ...scheduleBase,
+      endDate,
+      class: classById.get(sched.classId) ?? null,
+      instructor: sched.instructorId ? (instructorById.get(sched.instructorId) ?? null) : null,
+      requiredSubscriptions: requiredSubsByClassId.get(sched.classId) ?? [],
+      userEnrollment,
+      customerStatusLabel: getCustomerScheduleStatusLabel(sched.status, userEnrollment),
+    }
+  })
+}
+
 
 export interface UserSubscriptionMinimalRow {
   id: string

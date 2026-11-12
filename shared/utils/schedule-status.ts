@@ -299,3 +299,43 @@ export function isScheduleTimelineOrderValid(
   )
 }
 
+/**
+ * Returns the localized Italian status label for a customer viewing a schedule card
+ * according to SPECIFICATION.md (line 390):
+ * - "iscrizioni aperte", "iscritto" or "coda" (during ENROLLING)
+ * - "iscritto in partenza" or "iscrizioni chiuse" (during UPCOMING)
+ * - "in corso" (during ACTIVE)
+ * - "annullato per numero minimo non raggiunto" (CANCELLED_LOW_ENROLLMENT)
+ * - "annullato dal gerente" (CANCELLED_BY_PROVIDER)
+ */
+export function getCustomerScheduleStatusLabel(
+  status: ScheduleStatus,
+  userEnrollment: { isEnrolled: boolean; isQueued: boolean },
+): string {
+  switch (status) {
+    case 'CANCELLED_BY_PROVIDER':
+      return 'Annullato dal gerente'
+    case 'CANCELLED_LOW_ENROLLMENT':
+      return 'Annullato per numero minimo non raggiunto'
+    case 'ACTIVE':
+      return 'In corso'
+    case 'COMPLETED':
+      return 'Completata'
+    case 'UPCOMING':
+      return userEnrollment.isEnrolled ? 'Iscritto in partenza' : 'Iscrizioni chiuse'
+    case 'ENROLLING':
+      if (userEnrollment.isEnrolled) {
+        return 'Iscritto'
+      }
+      if (userEnrollment.isQueued) {
+        return 'Coda'
+      }
+      return 'Iscrizioni aperte'
+    case 'PUBLISHED':
+      return 'Iscrizioni chiuse'
+    case 'DRAFT':
+      return 'Bozza'
+  }
+}
+
+
