@@ -1,6 +1,10 @@
 import type { ClassColor } from '../../shared/schemas/common'
 import type { ScheduleStatus } from '../../shared/utils/schedule-status'
-import { utcIsoToLocalParts } from '../../shared/utils/timezone'
+import {
+  formatCenterDayHeader,
+  localDateTimeToUtcIso,
+  utcIsoToLocalParts,
+} from '../../shared/utils/timezone'
 
 export interface ClassColorStyle {
   value: ClassColor
@@ -229,4 +233,104 @@ export function extractApiErrorMessage(err: unknown, fallback = 'Si è verificat
   }
   return fallback
 }
+
+/**
+ * Formats the spots label on the right side of Row 1 of the customer 4-row course card
+ * according to SPECIFICATION.md (line 390):
+ * "X posti liberi su Y o label completo" (or "Posti illimitati" when availableSpots is null).
+ */
+export function formatCustomerSpotsLabel(
+  availableSpots: number | null | undefined,
+  remainingSpots: number | null | undefined,
+): string {
+  if (
+    availableSpots === null ||
+    availableSpots === undefined ||
+    remainingSpots === null ||
+    remainingSpots === undefined
+  ) {
+    return 'Posti illimitati'
+  }
+  if (remainingSpots <= 0) {
+    return 'Completo'
+  }
+  return `${remainingSpots} posti liberi su ${availableSpots}`
+}
+
+/**
+ * Returns the badge styling class for the customer-facing schedule status label (Row 2 right side).
+ */
+export function getCustomerStatusBadgeClass(
+  status: ScheduleStatus,
+  userEnrollment: { isEnrolled: boolean; isQueued: boolean },
+): string {
+  switch (status) {
+    case 'CANCELLED_BY_PROVIDER':
+      return 'bg-red-100 text-red-800 border-red-300'
+    case 'CANCELLED_LOW_ENROLLMENT':
+      return 'bg-rose-100 text-rose-800 border-rose-300'
+    case 'ACTIVE':
+      return 'bg-amber-100 text-amber-900 border-amber-300'
+    case 'UPCOMING':
+      return userEnrollment.isEnrolled
+        ? 'bg-indigo-600 text-white border-indigo-700'
+        : 'bg-slate-100 text-slate-700 border-slate-300'
+    case 'ENROLLING':
+      if (userEnrollment.isEnrolled) {
+        return 'bg-emerald-600 text-white border-emerald-700'
+      }
+      if (userEnrollment.isQueued) {
+        return 'bg-amber-100 text-amber-900 border-amber-300'
+      }
+      return 'bg-emerald-100 text-emerald-800 border-emerald-300'
+    case 'PUBLISHED':
+    case 'COMPLETED':
+    case 'DRAFT':
+    default:
+      return 'bg-slate-100 text-slate-700 border-slate-300'
+  }
+}
+
+/**
+ * Adds or subtracts `deltaDays` from a `YYYY-MM-DD` date string.
+ */
+export function addDaysToLocalDate(localDate: string, deltaDays: number): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(localDate.trim())
+  if (!match) {
+    return localDate
+  }
+  const year = Number.parseInt(match[1]!, 10)
+  const month = Number.parseInt(match[2]!, 10)
+  const day = Number.parseInt(match[3]!, 10)
+  const d = new Date(Date.UTC(year, month - 1, day + deltaDays))
+  const y = d.getUTCFullYear()
+  const m = d.getUTCMonth() + 1
+  const dayNum = d.getUTCDate()
+  return `${String(y).padStart(4, '0')}-${String(m).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`
+}
+
+/**
+ * Checks whether the customer can navigate to the previous day on `/customer`.
+ * Per SPECIFICATION.md line 388: "Di default si apre sul giorno corrente. Non si può andare ai giorni precedenti".
+ */
+export function canNavigateToPreviousCustomerDay(
+  selectedDate: string,
+  todayInCenterTimezone: string,
+): boolean {
+  return selectedDate > todayInCenterTimezone
+}
+
+/**
+ * Formats a `YYYY-MM-DD` local date string as an Italian day header (e.g. "giovedì 12 novembre 2026")
+ * anchored to `center.timezone`.
+ */
+export function formatLocalDateHeaderIt(localDate: string, timeZone: string): string {
+  try {
+    const noonUtc = localDateTimeToUtcIso(localDate, '12:00:00', timeZone)
+    return formatCenterDayHeader(noonUtc, timeZone)
+  } catch {
+    return localDate
+  }
+}
+
 
