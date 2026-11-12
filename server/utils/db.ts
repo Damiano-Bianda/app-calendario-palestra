@@ -35,7 +35,7 @@ export function useDb(event: H3Event): AppDatabase {
   if (!d1) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'Database D1 non configurato nell\'ambiente Cloudflare.',
+      message: "Database D1 non configurato nell'ambiente Cloudflare.",
     })
   }
   return createDb(d1)
