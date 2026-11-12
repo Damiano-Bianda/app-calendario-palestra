@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3'
 import { formatCenterDate, formatCenterTimeRange } from '../../shared/utils/timezone.ts'
+import { getCloudflareEnv } from './db.ts'
 
 export interface TransactionalEmailMessage {
   to: string | string[]
@@ -70,22 +71,18 @@ export async function sendTransactionalEmail(
     return { delivered: false, provider: 'console' }
   }
 
+  const cfEnv = getCloudflareEnv(event)
+
   const resendApiKey =
-    (typeof event?.context?.cloudflare?.env?.RESEND_API_KEY === 'string'
-      ? event.context.cloudflare.env.RESEND_API_KEY
-      : undefined) ??
+    (typeof cfEnv?.RESEND_API_KEY === 'string' ? cfEnv.RESEND_API_KEY : undefined) ??
     (typeof process !== 'undefined' ? process.env?.RESEND_API_KEY : undefined)
 
   const brevoApiKey =
-    (typeof event?.context?.cloudflare?.env?.BREVO_API_KEY === 'string'
-      ? event.context.cloudflare.env.BREVO_API_KEY
-      : undefined) ??
+    (typeof cfEnv?.BREVO_API_KEY === 'string' ? cfEnv.BREVO_API_KEY : undefined) ??
     (typeof process !== 'undefined' ? process.env?.BREVO_API_KEY : undefined)
 
   const emailFrom =
-    (typeof event?.context?.cloudflare?.env?.EMAIL_FROM === 'string'
-      ? event.context.cloudflare.env.EMAIL_FROM
-      : undefined) ??
+    (typeof cfEnv?.EMAIL_FROM === 'string' ? cfEnv.EMAIL_FROM : undefined) ??
     (typeof process !== 'undefined' ? process.env?.EMAIL_FROM : undefined) ??
     'Palestra <noreply@palestra.com>'
 

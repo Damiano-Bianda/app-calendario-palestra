@@ -13,7 +13,7 @@ import type { z } from 'zod'
 import { uuidSchema } from '../../shared/schemas/common.ts'
 import { centers, users, usersCenters } from '../db/schema.ts'
 import { createSessionToken, verifySessionToken } from './crypto.ts'
-import { useDb, type AppDatabase } from './db.ts'
+import { getCloudflareEnv, useDb, type AppDatabase } from './db.ts'
 
 export const SESSION_COOKIE_NAME = 'palestra_session'
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 400 // 400 days (maximum browser cookie lifetime)
@@ -98,7 +98,7 @@ export function computeRoleNavigation(roles: {
  * Resolves the server HMAC secret from Cloudflare env or process.env.
  */
 export function useAuthSecret(event: H3Event): string {
-  const cfSecret = event.context.cloudflare?.env?.AUTH_SECRET
+  const cfSecret = getCloudflareEnv(event)?.AUTH_SECRET
   if (typeof cfSecret === 'string' && cfSecret.trim().length > 0) {
     return cfSecret.trim()
   }
@@ -112,7 +112,7 @@ export function useAuthSecret(event: H3Event): string {
  * Resolves the base application URL for password recovery links.
  */
 export function useAppUrl(event: H3Event): string {
-  const cfAppUrl = event.context.cloudflare?.env?.APP_URL
+  const cfAppUrl = getCloudflareEnv(event)?.APP_URL
   if (typeof cfAppUrl === 'string' && cfAppUrl.trim().length > 0) {
     return cfAppUrl.trim().replace(/\/+$/g, '')
   }
