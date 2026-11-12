@@ -1,0 +1,1590 @@
+{
+  "version": "6",
+  "dialect": "sqlite",
+  "id": "6b9c3628-3e87-4096-b6a5-9d4750a11eda",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "centers": {
+      "name": "centers",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "timezone": {
+          "name": "timezone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "centers_created_by_users_id_fk": {
+          "name": "centers_created_by_users_id_fk",
+          "tableFrom": "centers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "centers_updated_by_users_id_fk": {
+          "name": "centers_updated_by_users_id_fk",
+          "tableFrom": "centers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "centers_name_not_empty": {
+          "name": "centers_name_not_empty",
+          "value": "LENGTH(TRIM(\"centers\".\"name\")) > 0"
+        },
+        "centers_timezone_not_empty": {
+          "name": "centers_timezone_not_empty",
+          "value": "LENGTH(TRIM(\"centers\".\"timezone\")) > 0"
+        },
+        "centers_created_by_not_empty": {
+          "name": "centers_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"centers\".\"created_by\")) > 0"
+        },
+        "centers_updated_by_not_empty": {
+          "name": "centers_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"centers\".\"updated_by\")) > 0"
+        },
+        "centers_created_at_not_empty": {
+          "name": "centers_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"centers\".\"created_at\")) > 0"
+        },
+        "centers_updated_at_not_empty": {
+          "name": "centers_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"centers\".\"updated_at\")) > 0"
+        },
+        "centers_deleted_at_not_empty": {
+          "name": "centers_deleted_at_not_empty",
+          "value": "\"centers\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"centers\".\"deleted_at\")) > 0"
+        }
+      }
+    },
+    "classes": {
+      "name": "classes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "center_id": {
+          "name": "center_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text(1000)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "color": {
+          "name": "color",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'black'"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "classes_center_id_centers_id_fk": {
+          "name": "classes_center_id_centers_id_fk",
+          "tableFrom": "classes",
+          "tableTo": "centers",
+          "columnsFrom": [
+            "center_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "classes_created_by_users_id_fk": {
+          "name": "classes_created_by_users_id_fk",
+          "tableFrom": "classes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "classes_updated_by_users_id_fk": {
+          "name": "classes_updated_by_users_id_fk",
+          "tableFrom": "classes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "classes_name_not_empty": {
+          "name": "classes_name_not_empty",
+          "value": "LENGTH(TRIM(\"classes\".\"name\")) > 0"
+        },
+        "classes_description_not_empty": {
+          "name": "classes_description_not_empty",
+          "value": "\"classes\".\"description\" IS NULL OR LENGTH(TRIM(\"classes\".\"description\")) > 0"
+        },
+        "classes_colors": {
+          "name": "classes_colors",
+          "value": "\"classes\".\"color\" IN ('black', 'white', 'red', 'blue', 'green', 'yellow', 'orange', 'purple', 'pink', 'cyan')"
+        },
+        "classes_created_by_not_empty": {
+          "name": "classes_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"classes\".\"created_by\")) > 0"
+        },
+        "classes_updated_by_not_empty": {
+          "name": "classes_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"classes\".\"updated_by\")) > 0"
+        },
+        "classes_created_at_not_empty": {
+          "name": "classes_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"classes\".\"created_at\")) > 0"
+        },
+        "classes_updated_at_not_empty": {
+          "name": "classes_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"classes\".\"updated_at\")) > 0"
+        },
+        "classes_deleted_at_not_empty": {
+          "name": "classes_deleted_at_not_empty",
+          "value": "\"classes\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"classes\".\"deleted_at\")) > 0"
+        }
+      }
+    },
+    "schedules": {
+      "name": "schedules",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "class_id": {
+          "name": "class_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "center_id": {
+          "name": "center_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "instructor_id": {
+          "name": "instructor_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "duration_minutes": {
+          "name": "duration_minutes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "available_spots": {
+          "name": "available_spots",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "minimum_spots": {
+          "name": "minimum_spots",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "publication_minutes_before": {
+          "name": "publication_minutes_before",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "registration_open_minutes_before": {
+          "name": "registration_open_minutes_before",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "registration_close_minutes_before": {
+          "name": "registration_close_minutes_before",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "schedules_class_id_classes_id_fk": {
+          "name": "schedules_class_id_classes_id_fk",
+          "tableFrom": "schedules",
+          "tableTo": "classes",
+          "columnsFrom": [
+            "class_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "schedules_center_id_centers_id_fk": {
+          "name": "schedules_center_id_centers_id_fk",
+          "tableFrom": "schedules",
+          "tableTo": "centers",
+          "columnsFrom": [
+            "center_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "schedules_instructor_id_users_id_fk": {
+          "name": "schedules_instructor_id_users_id_fk",
+          "tableFrom": "schedules",
+          "tableTo": "users",
+          "columnsFrom": [
+            "instructor_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "schedules_created_by_users_id_fk": {
+          "name": "schedules_created_by_users_id_fk",
+          "tableFrom": "schedules",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "schedules_updated_by_users_id_fk": {
+          "name": "schedules_updated_by_users_id_fk",
+          "tableFrom": "schedules",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "schedules_start_date_not_empty": {
+          "name": "schedules_start_date_not_empty",
+          "value": "LENGTH(TRIM(\"schedules\".\"start_date\")) > 0"
+        },
+        "schedules_duration_minutes_valid": {
+          "name": "schedules_duration_minutes_valid",
+          "value": "\"schedules\".\"duration_minutes\" >= 5 AND \"schedules\".\"duration_minutes\" % 5 = 0"
+        },
+        "schedules_minimum_spots_valid": {
+          "name": "schedules_minimum_spots_valid",
+          "value": "\"schedules\".\"minimum_spots\" >= 1"
+        },
+        "schedules_available_spots_valid": {
+          "name": "schedules_available_spots_valid",
+          "value": "\"schedules\".\"available_spots\" IS NULL OR \"schedules\".\"available_spots\" >= \"schedules\".\"minimum_spots\""
+        },
+        "schedules_publication_minutes_valid": {
+          "name": "schedules_publication_minutes_valid",
+          "value": "\"schedules\".\"publication_minutes_before\" IS NULL OR (\"schedules\".\"publication_minutes_before\" >= 1 AND \"schedules\".\"publication_minutes_before\" % 5 = 0)"
+        },
+        "schedules_registration_open_minutes_valid": {
+          "name": "schedules_registration_open_minutes_valid",
+          "value": "\"schedules\".\"registration_open_minutes_before\" IS NULL OR (\"schedules\".\"registration_open_minutes_before\" >= 1 AND \"schedules\".\"registration_open_minutes_before\" % 5 = 0)"
+        },
+        "schedules_registration_close_minutes_valid": {
+          "name": "schedules_registration_close_minutes_valid",
+          "value": "\"schedules\".\"registration_close_minutes_before\" IS NULL OR \"schedules\".\"registration_close_minutes_before\" >= 1"
+        },
+        "schedules_timeline_order_valid": {
+          "name": "schedules_timeline_order_valid",
+          "value": "julianday(\"schedules\".\"start_date\") >= (julianday(\"schedules\".\"start_date\") - (COALESCE(\"schedules\".\"registration_close_minutes_before\", 0) / 1440.0)) AND (julianday(\"schedules\".\"start_date\") - (COALESCE(\"schedules\".\"registration_close_minutes_before\", 0) / 1440.0)) >= (CASE WHEN \"schedules\".\"registration_open_minutes_before\" IS NULL THEN julianday(\"schedules\".\"created_at\") ELSE julianday(\"schedules\".\"start_date\") - (\"schedules\".\"registration_open_minutes_before\" / 1440.0) END) AND (CASE WHEN \"schedules\".\"registration_open_minutes_before\" IS NULL THEN julianday(\"schedules\".\"created_at\") ELSE julianday(\"schedules\".\"start_date\") - (\"schedules\".\"registration_open_minutes_before\" / 1440.0) END) >= (CASE WHEN \"schedules\".\"publication_minutes_before\" IS NULL THEN julianday(\"schedules\".\"created_at\") ELSE julianday(\"schedules\".\"start_date\") - (\"schedules\".\"publication_minutes_before\" / 1440.0) END) AND (CASE WHEN \"schedules\".\"publication_minutes_before\" IS NULL THEN julianday(\"schedules\".\"created_at\") ELSE julianday(\"schedules\".\"start_date\") - (\"schedules\".\"publication_minutes_before\" / 1440.0) END) >= julianday(\"schedules\".\"created_at\")"
+        },
+        "schedules_created_by_not_empty": {
+          "name": "schedules_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"schedules\".\"created_by\")) > 0"
+        },
+        "schedules_updated_by_not_empty": {
+          "name": "schedules_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"schedules\".\"updated_by\")) > 0"
+        },
+        "schedules_created_at_not_empty": {
+          "name": "schedules_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"schedules\".\"created_at\")) > 0"
+        },
+        "schedules_updated_at_not_empty": {
+          "name": "schedules_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"schedules\".\"updated_at\")) > 0"
+        },
+        "schedules_deleted_at_not_empty": {
+          "name": "schedules_deleted_at_not_empty",
+          "value": "\"schedules\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"schedules\".\"deleted_at\")) > 0"
+        }
+      }
+    },
+    "subscriptions": {
+      "name": "subscriptions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "center_id": {
+          "name": "center_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "description": {
+          "name": "description",
+          "type": "text(1000)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "entrances": {
+          "name": "entrances",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "duration_days": {
+          "name": "duration_days",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "subscriptions_center_id_centers_id_fk": {
+          "name": "subscriptions_center_id_centers_id_fk",
+          "tableFrom": "subscriptions",
+          "tableTo": "centers",
+          "columnsFrom": [
+            "center_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "subscriptions_created_by_users_id_fk": {
+          "name": "subscriptions_created_by_users_id_fk",
+          "tableFrom": "subscriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "subscriptions_updated_by_users_id_fk": {
+          "name": "subscriptions_updated_by_users_id_fk",
+          "tableFrom": "subscriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "subscriptions_name_not_empty": {
+          "name": "subscriptions_name_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions\".\"name\")) > 0"
+        },
+        "subscriptions_description_not_empty": {
+          "name": "subscriptions_description_not_empty",
+          "value": "\"subscriptions\".\"description\" IS NULL OR LENGTH(TRIM(\"subscriptions\".\"description\")) > 0"
+        },
+        "subscriptions_entrances_valid": {
+          "name": "subscriptions_entrances_valid",
+          "value": "\"subscriptions\".\"entrances\" IS NULL OR \"subscriptions\".\"entrances\" >= 1"
+        },
+        "subscriptions_duration_days_valid": {
+          "name": "subscriptions_duration_days_valid",
+          "value": "\"subscriptions\".\"duration_days\" IS NULL OR \"subscriptions\".\"duration_days\" >= 1"
+        },
+        "subscriptions_created_by_not_empty": {
+          "name": "subscriptions_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions\".\"created_by\")) > 0"
+        },
+        "subscriptions_updated_by_not_empty": {
+          "name": "subscriptions_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions\".\"updated_by\")) > 0"
+        },
+        "subscriptions_created_at_not_empty": {
+          "name": "subscriptions_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions\".\"created_at\")) > 0"
+        },
+        "subscriptions_updated_at_not_empty": {
+          "name": "subscriptions_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions\".\"updated_at\")) > 0"
+        },
+        "subscriptions_deleted_at_not_empty": {
+          "name": "subscriptions_deleted_at_not_empty",
+          "value": "\"subscriptions\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"subscriptions\".\"deleted_at\")) > 0"
+        }
+      }
+    },
+    "subscriptions_classes": {
+      "name": "subscriptions_classes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "subscription_id": {
+          "name": "subscription_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "class_id": {
+          "name": "class_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "subscriptions_classes_subscription_id_subscriptions_id_fk": {
+          "name": "subscriptions_classes_subscription_id_subscriptions_id_fk",
+          "tableFrom": "subscriptions_classes",
+          "tableTo": "subscriptions",
+          "columnsFrom": [
+            "subscription_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "subscriptions_classes_class_id_classes_id_fk": {
+          "name": "subscriptions_classes_class_id_classes_id_fk",
+          "tableFrom": "subscriptions_classes",
+          "tableTo": "classes",
+          "columnsFrom": [
+            "class_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "subscriptions_classes_created_by_users_id_fk": {
+          "name": "subscriptions_classes_created_by_users_id_fk",
+          "tableFrom": "subscriptions_classes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "subscriptions_classes_updated_by_users_id_fk": {
+          "name": "subscriptions_classes_updated_by_users_id_fk",
+          "tableFrom": "subscriptions_classes",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "subscriptions_classes_created_by_not_empty": {
+          "name": "subscriptions_classes_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions_classes\".\"created_by\")) > 0"
+        },
+        "subscriptions_classes_updated_by_not_empty": {
+          "name": "subscriptions_classes_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions_classes\".\"updated_by\")) > 0"
+        },
+        "subscriptions_classes_created_at_not_empty": {
+          "name": "subscriptions_classes_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions_classes\".\"created_at\")) > 0"
+        },
+        "subscriptions_classes_updated_at_not_empty": {
+          "name": "subscriptions_classes_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"subscriptions_classes\".\"updated_at\")) > 0"
+        },
+        "subscriptions_classes_deleted_at_not_empty": {
+          "name": "subscriptions_classes_deleted_at_not_empty",
+          "value": "\"subscriptions_classes\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"subscriptions_classes\".\"deleted_at\")) > 0"
+        }
+      }
+    },
+    "user_schedules": {
+      "name": "user_schedules",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "center_id": {
+          "name": "center_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "schedule_id": {
+          "name": "schedule_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_subscription_id": {
+          "name": "user_subscription_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "is_queued": {
+          "name": "is_queued",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "user_schedules_schedule_user_active_idx": {
+          "name": "user_schedules_schedule_user_active_idx",
+          "columns": [
+            "schedule_id",
+            "user_id"
+          ],
+          "isUnique": true,
+          "where": "\"user_schedules\".\"deleted_at\" IS NULL"
+        }
+      },
+      "foreignKeys": {
+        "user_schedules_center_id_centers_id_fk": {
+          "name": "user_schedules_center_id_centers_id_fk",
+          "tableFrom": "user_schedules",
+          "tableTo": "centers",
+          "columnsFrom": [
+            "center_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "user_schedules_user_id_users_id_fk": {
+          "name": "user_schedules_user_id_users_id_fk",
+          "tableFrom": "user_schedules",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "user_schedules_schedule_id_schedules_id_fk": {
+          "name": "user_schedules_schedule_id_schedules_id_fk",
+          "tableFrom": "user_schedules",
+          "tableTo": "schedules",
+          "columnsFrom": [
+            "schedule_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "user_schedules_user_subscription_id_users_subscriptions_id_fk": {
+          "name": "user_schedules_user_subscription_id_users_subscriptions_id_fk",
+          "tableFrom": "user_schedules",
+          "tableTo": "users_subscriptions",
+          "columnsFrom": [
+            "user_subscription_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "user_schedules_created_by_users_id_fk": {
+          "name": "user_schedules_created_by_users_id_fk",
+          "tableFrom": "user_schedules",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "user_schedules_updated_by_users_id_fk": {
+          "name": "user_schedules_updated_by_users_id_fk",
+          "tableFrom": "user_schedules",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "user_schedules_created_by_not_empty": {
+          "name": "user_schedules_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"user_schedules\".\"created_by\")) > 0"
+        },
+        "user_schedules_updated_by_not_empty": {
+          "name": "user_schedules_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"user_schedules\".\"updated_by\")) > 0"
+        },
+        "user_schedules_created_at_not_empty": {
+          "name": "user_schedules_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"user_schedules\".\"created_at\")) > 0"
+        },
+        "user_schedules_updated_at_not_empty": {
+          "name": "user_schedules_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"user_schedules\".\"updated_at\")) > 0"
+        },
+        "user_schedules_deleted_at_not_empty": {
+          "name": "user_schedules_deleted_at_not_empty",
+          "value": "\"user_schedules\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"user_schedules\".\"deleted_at\")) > 0"
+        }
+      }
+    },
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "users_email_active_idx": {
+          "name": "users_email_active_idx",
+          "columns": [
+            "email"
+          ],
+          "isUnique": true,
+          "where": "\"users\".\"deleted_at\" IS NULL"
+        }
+      },
+      "foreignKeys": {
+        "users_created_by_users_id_fk": {
+          "name": "users_created_by_users_id_fk",
+          "tableFrom": "users",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_updated_by_users_id_fk": {
+          "name": "users_updated_by_users_id_fk",
+          "tableFrom": "users",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "users_email_not_empty": {
+          "name": "users_email_not_empty",
+          "value": "LENGTH(TRIM(\"users\".\"email\")) > 0"
+        },
+        "users_password_hash_not_empty": {
+          "name": "users_password_hash_not_empty",
+          "value": "LENGTH(TRIM(\"users\".\"password_hash\")) > 0"
+        },
+        "users_created_by_not_empty": {
+          "name": "users_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"users\".\"created_by\")) > 0"
+        },
+        "users_updated_by_not_empty": {
+          "name": "users_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"users\".\"updated_by\")) > 0"
+        },
+        "users_created_at_not_empty": {
+          "name": "users_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"users\".\"created_at\")) > 0"
+        },
+        "users_updated_at_not_empty": {
+          "name": "users_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"users\".\"updated_at\")) > 0"
+        },
+        "users_deleted_at_not_empty": {
+          "name": "users_deleted_at_not_empty",
+          "value": "\"users\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"users\".\"deleted_at\")) > 0"
+        }
+      }
+    },
+    "users_centers": {
+      "name": "users_centers",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "center_id": {
+          "name": "center_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "surname": {
+          "name": "surname",
+          "type": "text(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "text(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "is_manager": {
+          "name": "is_manager",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "is_assistant_manager": {
+          "name": "is_assistant_manager",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "is_instructor": {
+          "name": "is_instructor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {
+        "users_centers_center_user_active_idx": {
+          "name": "users_centers_center_user_active_idx",
+          "columns": [
+            "center_id",
+            "user_id"
+          ],
+          "isUnique": true,
+          "where": "\"users_centers\".\"deleted_at\" IS NULL"
+        }
+      },
+      "foreignKeys": {
+        "users_centers_center_id_centers_id_fk": {
+          "name": "users_centers_center_id_centers_id_fk",
+          "tableFrom": "users_centers",
+          "tableTo": "centers",
+          "columnsFrom": [
+            "center_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_centers_user_id_users_id_fk": {
+          "name": "users_centers_user_id_users_id_fk",
+          "tableFrom": "users_centers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_centers_created_by_users_id_fk": {
+          "name": "users_centers_created_by_users_id_fk",
+          "tableFrom": "users_centers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_centers_updated_by_users_id_fk": {
+          "name": "users_centers_updated_by_users_id_fk",
+          "tableFrom": "users_centers",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "users_centers_name_not_empty": {
+          "name": "users_centers_name_not_empty",
+          "value": "LENGTH(TRIM(\"users_centers\".\"name\")) > 0"
+        },
+        "users_centers_surname_not_empty": {
+          "name": "users_centers_surname_not_empty",
+          "value": "LENGTH(TRIM(\"users_centers\".\"surname\")) > 0"
+        },
+        "users_centers_phone_not_empty": {
+          "name": "users_centers_phone_not_empty",
+          "value": "LENGTH(TRIM(\"users_centers\".\"phone_number\")) > 0"
+        },
+        "users_centers_phone_e164": {
+          "name": "users_centers_phone_e164",
+          "value": "LENGTH(CASE WHEN SUBSTR(\"users_centers\".\"phone_number\", 1, 1) = '+' THEN SUBSTR(\"users_centers\".\"phone_number\", 2) ELSE \"users_centers\".\"phone_number\" END) BETWEEN 7 AND 15 AND NOT ((CASE WHEN SUBSTR(\"users_centers\".\"phone_number\", 1, 1) = '+' THEN SUBSTR(\"users_centers\".\"phone_number\", 2) ELSE \"users_centers\".\"phone_number\" END) GLOB '*[^0-9]*')"
+        },
+        "users_centers_created_by_not_empty": {
+          "name": "users_centers_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"users_centers\".\"created_by\")) > 0"
+        },
+        "users_centers_updated_by_not_empty": {
+          "name": "users_centers_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"users_centers\".\"updated_by\")) > 0"
+        },
+        "users_centers_created_at_not_empty": {
+          "name": "users_centers_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"users_centers\".\"created_at\")) > 0"
+        },
+        "users_centers_updated_at_not_empty": {
+          "name": "users_centers_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"users_centers\".\"updated_at\")) > 0"
+        },
+        "users_centers_deleted_at_not_empty": {
+          "name": "users_centers_deleted_at_not_empty",
+          "value": "\"users_centers\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"users_centers\".\"deleted_at\")) > 0"
+        }
+      }
+    },
+    "users_subscriptions": {
+      "name": "users_subscriptions",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text(36)",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "subscription_id": {
+          "name": "subscription_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "center_id": {
+          "name": "center_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "start_date": {
+          "name": "start_date",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "entrances": {
+          "name": "entrances",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "updated_by": {
+          "name": "updated_by",
+          "type": "text(36)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "text(24)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "users_subscriptions_subscription_id_subscriptions_id_fk": {
+          "name": "users_subscriptions_subscription_id_subscriptions_id_fk",
+          "tableFrom": "users_subscriptions",
+          "tableTo": "subscriptions",
+          "columnsFrom": [
+            "subscription_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_subscriptions_center_id_centers_id_fk": {
+          "name": "users_subscriptions_center_id_centers_id_fk",
+          "tableFrom": "users_subscriptions",
+          "tableTo": "centers",
+          "columnsFrom": [
+            "center_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_subscriptions_user_id_users_id_fk": {
+          "name": "users_subscriptions_user_id_users_id_fk",
+          "tableFrom": "users_subscriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_subscriptions_created_by_users_id_fk": {
+          "name": "users_subscriptions_created_by_users_id_fk",
+          "tableFrom": "users_subscriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "users_subscriptions_updated_by_users_id_fk": {
+          "name": "users_subscriptions_updated_by_users_id_fk",
+          "tableFrom": "users_subscriptions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "updated_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "users_subscriptions_start_date_not_empty": {
+          "name": "users_subscriptions_start_date_not_empty",
+          "value": "LENGTH(TRIM(\"users_subscriptions\".\"start_date\")) > 0"
+        },
+        "users_subscriptions_end_date_valid": {
+          "name": "users_subscriptions_end_date_valid",
+          "value": "\"users_subscriptions\".\"end_date\" IS NULL OR (LENGTH(TRIM(\"users_subscriptions\".\"end_date\")) > 0 AND \"users_subscriptions\".\"end_date\" > \"users_subscriptions\".\"start_date\")"
+        },
+        "users_subscriptions_entrances_valid": {
+          "name": "users_subscriptions_entrances_valid",
+          "value": "\"users_subscriptions\".\"entrances\" IS NULL OR \"users_subscriptions\".\"entrances\" >= 1"
+        },
+        "users_subscriptions_created_by_not_empty": {
+          "name": "users_subscriptions_created_by_not_empty",
+          "value": "LENGTH(TRIM(\"users_subscriptions\".\"created_by\")) > 0"
+        },
+        "users_subscriptions_updated_by_not_empty": {
+          "name": "users_subscriptions_updated_by_not_empty",
+          "value": "LENGTH(TRIM(\"users_subscriptions\".\"updated_by\")) > 0"
+        },
+        "users_subscriptions_created_at_not_empty": {
+          "name": "users_subscriptions_created_at_not_empty",
+          "value": "LENGTH(TRIM(\"users_subscriptions\".\"created_at\")) > 0"
+        },
+        "users_subscriptions_updated_at_not_empty": {
+          "name": "users_subscriptions_updated_at_not_empty",
+          "value": "LENGTH(TRIM(\"users_subscriptions\".\"updated_at\")) > 0"
+        },
+        "users_subscriptions_deleted_at_not_empty": {
+          "name": "users_subscriptions_deleted_at_not_empty",
+          "value": "\"users_subscriptions\".\"deleted_at\" IS NULL OR LENGTH(TRIM(\"users_subscriptions\".\"deleted_at\")) > 0"
+        }
+      }
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "indexes": {}
+  }
+}
