@@ -132,6 +132,40 @@ export function calculateRemainingEntrances(
   return userSubscription.entrances - used
 }
 
+/**
+ * Determines whether a `users_subscriptions` record is currently active
+ * according to SPECIFICATION.md (lines 149, 174, 487, 521):
+ * - Not soft-deleted (`deleted_at IS NULL`)
+ * - Not expired at `now` (`end_date IS NULL` or `Date.parse(end_date) >= nowMs`)
+ * - Has available entrances (`remaining_entrances === null` or `remaining_entrances >= 1`)
+ */
+export function isUserSubscriptionActive(
+  userSubscription: {
+    endDate: string | null
+    deletedAt: string | null
+  },
+  remainingEntrances: number | null,
+  now: string | Date = new Date(),
+): boolean {
+  if (userSubscription.deletedAt !== null) {
+    return false
+  }
+
+  const nowMs = typeof now === 'string' ? Date.parse(now) : now.getTime()
+  if (userSubscription.endDate !== null) {
+    const endMs = Date.parse(userSubscription.endDate)
+    if (Number.isNaN(endMs) || endMs < nowMs) {
+      return false
+    }
+  }
+
+  if (remainingEntrances !== null && remainingEntrances < 1) {
+    return false
+  }
+
+  return true
+}
+
 export interface CandidateUserSubscription {
   id: string
   startDate: string

@@ -12,6 +12,7 @@ declare module 'h3' {
         DB: D1Database
         AUTH_SECRET?: string
         RESEND_API_KEY?: string
+        BREVO_API_KEY?: string
         EMAIL_FROM?: string
         APP_URL?: string
         [key: string]: unknown

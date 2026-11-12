@@ -4,11 +4,13 @@ import {
   deleteCookie,
   getCookie,
   getRequestURL,
+  getRouterParam,
   readBody,
   setCookie,
   type H3Event,
 } from 'h3'
 import type { z } from 'zod'
+import { uuidSchema } from '../../shared/schemas/common.ts'
 import { centers, users, usersCenters } from '../db/schema.ts'
 import { createSessionToken, verifySessionToken } from './crypto.ts'
 import { useDb, type AppDatabase } from './db.ts'
@@ -380,3 +382,36 @@ export async function readValidatedBodyWithZod<T extends z.ZodTypeAny>(
   }
   return parsed.data
 }
+
+/**
+ * Extracts and validates a UUID route parameter (`:id` or `:userId`), supporting both
+ * Nitro router context (`event.context.params`) and direct URL path extraction in tests.
+ */
+export function requireUuidParam(event: H3Event, paramName: 'id' | 'userId' = 'id'): string {
+  let rawValue = getRouterParam(event, paramName)
+
+  if (!rawValue) {
+    const pathname = getRequestURL(event).pathname.replace(/\/+$/g, '')
+    const segments = pathname.split('/').filter(Boolean)
+    // Patterns:
+    // /api/<resource>/:id -> segments[2]
+    // /api/<resource>/:id/<subaction> -> segments[2]
+    // /api/schedules/:id/enroll/:userId -> segments[2] for 'id', segments[4] for 'userId'
+    if (paramName === 'id' && segments.length >= 3) {
+      rawValue = segments[2]
+    } else if (paramName === 'userId' && segments.length >= 5) {
+      rawValue = segments[4]
+    }
+  }
+
+  const parsed = uuidSchema.safeParse(rawValue)
+  if (!parsed.success) {
+    throw createError({
+      statusCode: 400,
+      message: parsed.error.issues[0]?.message ?? 'Identificativo UUID non valido.',
+    })
+  }
+
+  return parsed.data
+}
+
