@@ -25,28 +25,57 @@
 
 ## 1. Setup Ambiente, Seed e Prerequisiti
 
+### 1.0 Reset Completo dell'Applicazione (Pulizia Totale prima del Test)
+
+Se l'ambiente locale è già stato utilizzato in sessioni precedenti e si desidera **ripartire completamente da zero** (database D1 vergine, cache Nuxt/Nitro pulita e nessuna sessione residua nel browser), eseguire questa procedura prima del punto `1.1`:
+
+1. **Fermare il server di sviluppo**:
+   - Se `npm run dev` è attivo nel terminale, interromperlo con `Ctrl + C` (su Windows questo rilascia il lock sui file SQLite dentro `.wrangler/state/v3`).
+
+2. **Eliminare il database D1 locale e le directory di cache/build**:
+   - **Su Windows (PowerShell)**:
+     ```powershell
+     # Rimuove lo stato locale di Cloudflare D1 (.wrangler) e la cache di Nuxt (.nuxt, .output)
+     Remove-Item -Recurse -Force .wrangler, .nuxt, .output -ErrorAction SilentlyContinue
+
+     # Rigenera i tipi e la configurazione base di Nuxt
+     npx nuxt prepare
+     ```
+   - **Su macOS / Linux (Bash / Zsh)**:
+     ```bash
+     rm -rf .wrangler .nuxt .output
+     npx nuxt prepare
+     ```
+   - *(Alternativa SQL senza eliminare `.wrangler`: svuotamento di tutte le tabelle mantenendo lo schema)*:
+     ```powershell
+     npx wrangler d1 execute app-calendario-palestra-db --local --command "PRAGMA foreign_keys = OFF; DELETE FROM user_schedules; DELETE FROM users_subscriptions; DELETE FROM subscriptions_classes; DELETE FROM subscriptions; DELETE FROM schedules; DELETE FROM classes; DELETE FROM users_centers; DELETE FROM centers; DELETE FROM users; PRAGMA foreign_keys = ON;"
+     ```
+
+3. **Pulire il cookie di sessione nel Browser**:
+   - Poiché il cookie `palestra_session` è `HttpOnly` e ha durata 400 giorni, dopo un reset del DB conterrebbe `userId` e `centerId` non più esistenti.
+   - Aprire Chrome DevTools (`F12`) su `http://localhost:3000` -> scheda **Application** -> **Storage** -> cliccare **Clear site data** (oppure **Cookies** -> `http://localhost:3000` -> eliminare `palestra_session`).
+
+---
+
 ### 1.1 Comandi di Avvio Database D1 Locale, Migrazioni, Seed e Server Nuxt
 
-Prima di iniziare la sessione di test manuale, eseguire nell'ordine i seguenti comandi dalla root del progetto:
+Dopo aver eseguito il reset (o al primo avvio), eseguire nell'ordine i seguenti comandi dalla root del progetto:
 
 ```powershell
 # 1. Installazione dipendenze (e nuxt prepare automatico)
 npm install
 
-# 2. (Opzionale) Reset pulito dello stato D1 locale se si desidera ripartire da zero
-Remove-Item -Recurse -Force .wrangler/state -ErrorAction SilentlyContinue
-
-# 3. Applicazione migrazioni Drizzle su Cloudflare D1 locale (.wrangler/state/v3)
+# 2. Applicazione migrazioni Drizzle su Cloudflare D1 locale (.wrangler/state/v3)
 npm run db:migrate:local
 
-# 4. Esecuzione del seed iniziale (Admin + Sede A "Palestra Centrale" + Gerente Sede A)
+# 3. Esecuzione del seed iniziale (Admin + Sede A "Palestra Centrale" + Gerente Sede A)
 npm run db:seed:local
 
-# 5. (Opzionale) Creazione della Sede B ("Palestra New York", timezone "America/New_York") e relativo Gerente per testare il Multi-Sede e i fusi orari
+# 4. (Opzionale) Creazione della Sede B ("Palestra New York", timezone "America/New_York") e relativo Gerente per testare il Multi-Sede e i fusi orari
 $env:SEED_CENTER_NAME="Palestra New York"; $env:SEED_MANAGER_EMAIL="gerente.ny@palestra.it"; npm run db:seed:local
 Remove-Item Env:\SEED_CENTER_NAME, Env:\SEED_MANAGER_EMAIL -ErrorAction SilentlyContinue
 
-# 6. Avvio del server di sviluppo Nuxt 4 (con binding Cloudflare D1 locale in .wrangler/state/v3)
+# 5. Avvio del server di sviluppo Nuxt 4 (con binding Cloudflare D1 locale in .wrangler/state/v3)
 npm run dev
 ```
 
